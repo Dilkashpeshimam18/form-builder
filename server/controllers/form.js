@@ -1,5 +1,5 @@
 const Form = require('../models/form')
-const Responses=require('../models/response')
+const Response = require('../models/response')
 
 exports.createForm = async (req, res) => {
     try {
@@ -24,10 +24,35 @@ exports.createForm = async (req, res) => {
     }
 }
 
-exports.submitForm=async(req,res)=>{
-    try{
+exports.submitForm = async (req, res) => {
+    try {
+        const formId = req.params.formId;
+        const answers = req.body.answers;
+        const userId = req.user.id
 
+        const response = new Response({
+            formId: formId,
+            userId: userId,
+            answers: answers,
+        });
+
+        await response.save();
+        res.status(200).json({ success: true, message: 'Form submitted successfully!' });
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ success: false, message: err })
+
+    }
+}
+
+exports.getAllForm=async(req,res)=>{
+    try{
+        const forms = await Form.find();
+        res.status(200).json({success:true,forms});
     }catch(err){
         console.log(err)
+        res.status(500).json({ success: false, message: err })
+
     }
 }
