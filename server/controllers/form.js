@@ -1,4 +1,5 @@
 const Form = require('../models/form')
+const Responses=require('../models/response')
 
 exports.createForm = async (req, res) => {
     try {
@@ -20,5 +21,13 @@ exports.createForm = async (req, res) => {
         console.log(err)
         res.status(500).json({ success: false, message: err })
 
+    }
+}
+
+exports.submitForm=async(req,res)=>{
+    try{
+
+    }catch(err){
+        console.log(err)
     }
 }

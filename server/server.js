@@ -4,6 +4,7 @@ const cors = require('cors')
 const dotenv = require('dotenv')
 const mongoose = require('mongoose')
 const formRoutes = require('./routes/form')
+const authRoutes = require('./routes/auth')
 
 const app = express()
 
@@ -19,6 +20,7 @@ mongoose.connect(
     .catch((err) => { console.error(err); });
 
 app.use('/form', formRoutes)
+app.use('/auth', authRoutes)
 
 app.listen(4000, () => {
     console.log('SERVER RUNNING!!')

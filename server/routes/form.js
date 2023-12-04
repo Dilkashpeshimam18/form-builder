@@ -3,6 +3,7 @@ const formController = require('../controllers/form')
 
 const router = express.Router()
 
-router.get('/create-form', formController.createForm)
+router.post('/create-form', formController.createForm)
+router.post('/submit-form',formController.submitForm)
 
 module.exports = router
