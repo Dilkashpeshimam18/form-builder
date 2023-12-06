@@ -1,18 +1,75 @@
 import React, { useState } from 'react'
-import Select from '@mui/material/Select';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import { questionActions } from '../../../../store/slice/question';
-import {  useDispatch } from 'react-redux'
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import CloseIcon from '@mui/icons-material/Close';
 
+const Option = ({ index, option, correctAnswer, handleOptionChange, handleOptionMove, updateOptionValue, deleteOption }) => {
+  const [, ref] = useDrag({
+    type: 'OPTION',
+    item: { index },
+  });
+
+  const [, drop] = useDrop({
+    accept: 'OPTION',
+    hover: (draggedItem) => {
+      if (draggedItem.index !== index) {
+        handleOptionMove(draggedItem.index, index);
+        draggedItem.index = index;
+      }
+    },
+  });
+
+  return (
+    <div ref={(node) => drop(node)} style={{ marginBottom: '10px' }}>
+      <input
+        type="radio"
+        name="correctAnswer"
+        value={option.value}
+        checked={correctAnswer === index}
+        onChange={() => handleOptionChange(index)}
+      />
+      <input
+        type="text"
+        value={option.value}
+        style={{ cursor: 'grabbing' }}
+        onChange={(e) => updateOptionValue(index, e.target.value)}
+        ref={ref}
+      />
+      <button onClick={() => deleteOption(index)}>Delete</button>
+      <CloseIcon sx={{ marginLeft: '5px', cursor: 'pointer' }} onClick={() => deleteOption(index)} />
+
+    </div>
+  );
+};
 const Cloze = () => {
   const [question, setQuestion] = useState('');
   const [selectedText, setSelectedText] = useState('');
-  const [options, setOptions] = useState(['', '']);
+  const [options, setOptions] = useState([{ id: 1, value: '' }]);
   const [correctAnswer, setCorrectAnswer] = useState(null);
-  const dispatch=useDispatch()
 
-   const handleTextSelection = () => {
+  const handleOptionChange = (index) => {
+    setCorrectAnswer(index);
+  };
+
+  const handleOptionMove = (fromIndex, toIndex) => {
+    const updatedOptions = [...options];
+    const [movedOption] = updatedOptions.splice(fromIndex, 1);
+    updatedOptions.splice(toIndex, 0, movedOption);
+    setOptions(updatedOptions);
+  };
+
+  const addOption = () => {
+    const newOption = { id: options.length + 1, value: '' };
+    setOptions([...options, newOption]);
+  };
+
+  const updateOptionValue = (index, value) => {
+    const updatedOptions = [...options];
+    updatedOptions[index] = { ...updatedOptions[index], value };
+    setOptions(updatedOptions);
+  };
+
+  const handleTextSelection = () => {
     const selection = window.getSelection();
     const selectedText = selection.toString().trim();
 
@@ -20,11 +77,11 @@ const Cloze = () => {
       setSelectedText(selectedText);
     }
   };
-
-  const handleOptionChange = (index) => {
-    setCorrectAnswer(index);
+  const deleteOption = (index) => {
+    const updatedOptions = [...options];
+    updatedOptions.splice(index, 1);
+    setOptions(updatedOptions);
   };
-
   const renderQuestion = () => {
     if (!selectedText) {
       return question;
@@ -57,11 +114,13 @@ const Cloze = () => {
       </React.Fragment>
     ));
   };
+
+
   return (
     <div className='flex flex-col mt-5'>
 
       <div>
-    
+
         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div className="sm:col-span-3">
             <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
@@ -80,7 +139,7 @@ const Cloze = () => {
             </div>
           </div>
 
-        
+
         </div>
       </div>
 
@@ -121,31 +180,26 @@ const Cloze = () => {
 
       </div>
       <div>
-        <div className="sm:col-span-3">
-          <label>
-            Options:
-            {options.map((option, index) => (
-              <div key={index}>
-                <input
-                  type="radio"
-                  name="correctAnswer"
-                  value={option}
-                  checked={correctAnswer === index}
-                  onChange={() => handleOptionChange(index)}
+        <DndProvider backend={HTML5Backend}>
+          <div className="sm:col-span-3">
+            <label>
+              Options:
+              {options.map((option, index) => (
+                <Option
+                  key={option.id}
+                  index={index}
+                  option={option}
+                  correctAnswer={correctAnswer}
+                  handleOptionChange={handleOptionChange}
+                  handleOptionMove={handleOptionMove}
+                  updateOptionValue={updateOptionValue}
+                  deleteOption={deleteOption}
                 />
-                <input
-                  type="text"
-                  value={option}
-                  onChange={(e) => {
-                    const updatedOptions = [...options];
-                    updatedOptions[index] = e.target.value;
-                    setOptions(updatedOptions);
-                  }}
-                />
-              </div>
-            ))}
-          </label>
-        </div>
+              ))}
+              <button onClick={addOption}>Add Option</button>
+            </label>
+          </div>
+        </DndProvider>
       </div>
     </div>
   )

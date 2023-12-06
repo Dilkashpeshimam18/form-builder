@@ -1,12 +1,9 @@
 import React, { useState } from 'react'
-import Select from '@mui/material/Select';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import CloseIcon from '@mui/icons-material/Close';
 import { useDispatch } from 'react-redux'
-import { questionActions } from '../../../../store/slice/question';
+
 
 const ItemType = 'CATEGORY';
 const ItemsType = 'ITEM';
