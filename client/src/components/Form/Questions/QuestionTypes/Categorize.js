@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import CloseIcon from '@mui/icons-material/Close';
 import { useDispatch } from 'react-redux'
-
+import { questionActions } from '../../../../store/slice/question';
+import { Button } from '@mui/material';
 
 const ItemType = 'CATEGORY';
 const ItemsType = 'ITEM';
@@ -71,17 +72,20 @@ const DraggableInput = ({ index, value, updateValue, moveInput }) => {
     </div>
   );
 };
+
+
 const Categorize = () => {
 
   const [categories, setCategories] = useState(['', '']);
-  // const [items, setItems] = useState([]);
+  const [description, setDescription] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedCategory1, setSelectedCategory1] = useState('');
+  const [image, setImage] = useState(null)
 
-  const [itemValue, setItemValue] = useState('');
-  const [itemValue2, setItemValue2] = useState('');
+  const [imagePreview, setImagePreview] = useState(null);
 
   const [items, setItems] = useState(['', '']);
+  const [itemDetail, setItemDetail] = useState([])
   const dispatch = useDispatch()
 
   const moveInput = (fromIndex, toIndex) => {
@@ -116,6 +120,13 @@ const Categorize = () => {
     setCategories(updatedCategories)
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    setImage(e.target.files[0]);
+    console.log(file)
+
+  };
+ 
   const addCategory = () => {
     if (categories.length < 2) {
       setCategories([...categories, '']);
@@ -124,39 +135,42 @@ const Categorize = () => {
 
 
   const addItem = () => {
-    // if (selectedCategory && selectedCategory1 && itemValue && itemValue2 && items.length < 10) {
-    //   setItems([
-    //     ...items,
-    //     { category: selectedCategory, value: itemValue },
-    //     { category: selectedCategory1, value: itemValue2 },
-    //   ]);
 
-    //   setItemValue('');
-    //   setItemValue2('');
-    //   setSelectedCategory('');
-    //   setSelectedCategory1('');
+    if (selectedCategory && selectedCategory1 && items.length < 10) {
+      const newItem1 = { category: selectedCategory, value: items[0] };
+      const newItem2 = { category: selectedCategory1, value: items[1] };
 
-    // }
-    if (selectedCategory && selectedCategory1 && itemValue && itemValue2 && items.length < 10) {
-      setItems([
-        ...items,
-        { category: selectedCategory, value: itemValue },
-        { category: selectedCategory1, value: itemValue2 },
-      ]);
+      setItemDetail((prevItems) => [...prevItems, newItem1, newItem2]);
 
-      setItemValue('');
-      setItemValue2('');
-      setSelectedCategory('');
-      setSelectedCategory1('');
     }
   };
+
+  const saveQuestion = () => {
+    const newQuestion = {
+      type: 'categorize',
+      text: description,
+      image: image,
+      categoryData: {
+        categories: [...categories],
+        items: [...items],
+        itemDetail: [{ category: selectedCategory, value: items[0] }, { category: selectedCategory1, value: items[1] }]
+      },
+    };
+
+    dispatch(questionActions.handleAddQuestion(newQuestion));
+
+    setItems([]);
+    setItemDetail([])
+    setSelectedCategory('');
+    setSelectedCategory1('');
+  }
 
   return (
     <div className='flex flex-col mt-5'>
 
       <div>
-     
-   <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+
+        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div className="sm:col-span-3">
             <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
               Description
@@ -166,9 +180,38 @@ const Categorize = () => {
                 type="text"
                 name="description-categorize"
                 id="description-categorize"
+                onChange={(e) => setDescription(e.target.value)}
                 placeholder='Add description (optional)'
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
+            </div>
+          </div>
+
+        </div>
+
+        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+          <div className="sm:col-span-3">
+            <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
+              Upload Image
+            </label>
+            <div className="  mt-2 flex justify-center rounded-lg border block w-full border-dashed border-gray-900/25 px-6 py-10  ">
+              <div className="text-center">
+                <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                  <label
+                    htmlFor="file-upload"
+                    className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                  >
+                    <span>Upload a image</span>
+                    <input
+                    value={image}
+                    className="sr-only"
+                      onChange={handleImageChange}
+                    />
+                  </label>
+                  <p className="pl-1">or drag and drop</p>
+                </div>
+                <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
+              </div>
             </div>
           </div>
 
@@ -244,6 +287,7 @@ const Categorize = () => {
                 </div>
 
               </div>
+              <Button onClick={saveQuestion}>Save Question</Button>
             </div>
           </DndProvider>
         </div>

@@ -1,19 +1,46 @@
 import React, { useState } from 'react'
 import Question from '../Questions/Question'
+import { useSelector, useDispatch } from 'react-redux';
+import { formActions } from '../../../store/slice/form';
 
 const CreateForm = () => {
-    const [questions, setQuestions] = useState([{ id: 1 }]);
+    const [formData, setFormData] = useState({
+        headerImg: '',
+        title: '',
+        questions: [{ id: 1 }],
+    });
+    const dispatch = useDispatch()
+    const allQuestions = useSelector((state) => state.question.allQuestions)
 
     const addQuestion = () => {
-        const newQuestions = [...questions, { id: questions.length + 1 }];
-        setQuestions(newQuestions);
+        const newQuestions = [...formData.questions, { id: formData.questions.length + 1 }];
+        setFormData({ ...formData, questions: newQuestions });
     };
+
     const deleteQuestion = (id) => {
-        if (questions.length > 1) {
-            const updatedQuestions = questions.filter((question) => question.id !== id);
-            setQuestions(updatedQuestions);
+        if (formData.questions.length > 1) {
+            const updatedQuestions = formData.questions.filter((question) => question.id !== id);
+            setFormData({ ...formData, questions: updatedQuestions });
         }
     };
+
+    const handleHeaderImageChange = (e) => {
+        setFormData({ ...formData, headerImg: e.target.value });
+    };
+
+    const handleTitleChange = (e) => {
+        setFormData({ ...formData, title: e.target.value });
+    };
+
+    const saveForm = () => {
+        const data = {
+            title: formData.title,
+            img: formData.headerImg,
+            allQuestions: allQuestions
+        }
+        dispatch(formActions.handleForm(data))
+
+    }
     return (
         <div >
 
@@ -30,7 +57,8 @@ const CreateForm = () => {
                                     className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
                                 >
                                     <span>Upload a file</span>
-                                    <input id="file-upload" name="file-upload" type="file" className="sr-only" />
+                                    <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleHeaderImageChange}
+                                    />
                                 </label>
                                 <p className="pl-1">or drag and drop</p>
                             </div>
@@ -51,19 +79,21 @@ const CreateForm = () => {
                             name="title"
                             id="tiltle"
                             autoComplete="title"
-                            className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5   dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                            className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5   dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            onChange={handleTitleChange}
+                        />
                     </div>
                 </div>
             </div>
 
 
             <div>
-                {questions.map((question,index) => (
-                    <div key={question.id}>
-                    <p className="font-semibold">Question {index + 1}</p>
 
+                {formData.questions.map((question, index) => (
+                    <div key={question.id}>
+                        <p className="font-semibold">Question {index + 1}</p>
                         <Question />
-                        {questions.length > 1 &&  (
+                        {formData.questions.length > 1 && (
                             <button
                                 onClick={() => deleteQuestion(question.id)}
                                 className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded mt-2"
@@ -74,19 +104,19 @@ const CreateForm = () => {
                     </div>
                 ))}
 
-                {/* Button to add more questions */}
                 <button
                     onClick={addQuestion}
                     className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                 >
                     Add Question
-                </button>    
+                </button>
                 <button
-                className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-                Save Form
-            </button>   
-                </div>
+                    className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    onClick={saveForm}
+                >
+                    Save Form
+                </button>
+            </div>
 
 
         </div>

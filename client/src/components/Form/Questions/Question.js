@@ -2,10 +2,8 @@ import React, { useState } from 'react'
 import Categorize from './QuestionTypes/Categorize'
 import Cloze from './QuestionTypes/Cloze'
 import Comprehension from './QuestionTypes/Comprehension'
-import { useSelector } from 'react-redux'
 
 const Question = () => {
-    // const questionType = useSelector((state) => state.question.questionType)
     const [questionType, setQuestionType] = useState(() => 'Categorize'); // Default type
 
     const handleChange = (event) => {

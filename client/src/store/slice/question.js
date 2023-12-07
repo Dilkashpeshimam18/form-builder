@@ -1,7 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 export const initialQuestionState = {
-    questionType: 'Categorize'
+    question:[ ],
+
+    allQuestions: [],
+
 }
 
 
@@ -9,8 +12,11 @@ const QuestionSlice = createSlice({
     name: 'question',
     initialState: initialQuestionState,
     reducers: {
-        handleQuestionType(state, action) {
-            state.questionType = action.payload
+        handleAddQuestion(state, action) {
+            state.question.push(action.payload)
+
+            state.allQuestions.push(action.payload)
+
         }
 
     }
