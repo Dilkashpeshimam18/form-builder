@@ -14,9 +14,10 @@ const Comprehension = () => {
   const addQuestion = () => {
     setQuestions([...questions, { id: questions.length + 1, title: '', question: '', options: [{ text: '', isAnswer: false }] }]);
   };
-  
+
   const saveQuestion = () => {
     const formData = {
+      type: 'comprehension',
       passage,
       image,
       questions,

@@ -4,7 +4,7 @@ const cors = require('cors')
 const dotenv = require('dotenv')
 const mongoose = require('mongoose')
 const formRoutes = require('./routes/form')
-const authRoutes = require('./routes/auth')
+const authRoutes = require('./routes/auths')
 
 const app = express()
 

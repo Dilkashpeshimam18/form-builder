@@ -6,6 +6,6 @@ const router = express.Router()
 
 router.get('/all-form',formController.getAllForm)
 router.post('/create-form', formController.createForm)
-router.post('/submit-form/:formId',authenticate,formController.submitForm)
+router.post('/submit-form/:formId',formController.submitForm)
 
 module.exports = router

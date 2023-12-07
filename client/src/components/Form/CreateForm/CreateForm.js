@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import Question from '../Questions/Question'
 import { useSelector, useDispatch } from 'react-redux';
 import { formActions } from '../../../store/slice/form';
-
+import axios from 'axios'
 const CreateForm = () => {
     const [formData, setFormData] = useState({
         headerImg: '',
@@ -40,6 +40,23 @@ const CreateForm = () => {
         }
         dispatch(formActions.handleForm(data))
 
+    }
+    const createForm = async () => {
+        try {
+            const data = {
+                title: formData.title,
+                headerImg: formData.headerImg,
+                allQuestions: allQuestions
+            }
+
+            console.log('Form>>>',data  )
+
+            const response = await axios.post('http://localhost:4000/form/create-form', data)
+            console.log(response)
+
+        } catch (err) {
+            console.log(err)
+        }
     }
     return (
         <div >
@@ -112,7 +129,7 @@ const CreateForm = () => {
                 </button>
                 <button
                     className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    onClick={saveForm}
+                    onClick={createForm}
                 >
                     Save Form
                 </button>

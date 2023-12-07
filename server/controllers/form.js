@@ -7,20 +7,51 @@ exports.createForm = async (req, res) => {
 
         const newForm = new Form({
             title: formData.title,
-            headerImage: formData.headerImage,
-            questions: formData.questions,
+            headerImg: formData.headerImg,
+            questions: formData.allQuestions.map((question) => {
+                if (question.type === 'cloze') {
+                    return {
+                        type: 'cloze',
+                        text: question.text,
+                        image: question.image || '',
+                        clozeData: {
+                            options: question.options,
+                            answer: question.answer || '',
+                        },
+                    };
+                } else if (question.type === 'categorize') {
+                    return {
+                        type: 'categorize',
+                        text: question.text,
+                        image: question.image || '', 
+                        categoryData: {
+                            categories: question.categoryData.categories,
+                            items: question.categoryData.items,
+                            itemDetail: question.categoryData.itemDetail.map((detail) => ({
+                                category: detail.category,
+                                value: detail.value,
+                            })),
+                        },
+                    };
+                } else if (question.type === 'comprehension') {
+                    return {
+                        type: 'comprehension',
+                        image: question.image || '',
+                        comprehensionData: {
+                            passage: question.passage,
+                            questions: question.questions, 
+                        },
+                    };
+                }
+              
+                return {}; 
+            }),
         });
-
-        await newForm.save((err, savedForm) => {
-            if (err) {
-                return res.status(500).send(err);
-            }
-            res.status(200).json({ success: true, savedForm });
-        });
+        const savedForm = await newForm.save();
+        res.status(200).json({ success: true, savedForm });
     } catch (err) {
         console.log(err)
         res.status(500).json({ success: false, message: err })
-
     }
 }
 
@@ -46,11 +77,11 @@ exports.submitForm = async (req, res) => {
     }
 }
 
-exports.getAllForm=async(req,res)=>{
-    try{
+exports.getAllForm = async (req, res) => {
+    try {
         const forms = await Form.find();
-        res.status(200).json({success:true,forms});
-    }catch(err){
+        res.status(200).json({ success: true, forms });
+    } catch (err) {
         console.log(err)
         res.status(500).json({ success: false, message: err })
 
